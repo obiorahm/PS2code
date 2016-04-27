@@ -18,7 +18,6 @@ def reduced_error_pruning(root,training_set,validation_set):
         return root
     elif (root.label != None):
         del new_root
-        if 
         
     pass
 # 

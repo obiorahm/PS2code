@@ -18,11 +18,11 @@ def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numer
     return n
 
 def test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
-    if numerical_splits_count[0] == 0:
+    if numerical_splits_count[attr_pos] == 0:
         n.label = mode(data_set)
         return n
     else:
-        numerical_splits_count[0] -=1
+        numerical_splits_count[attr_pos] -=1
         return make_child_numeric(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)    
 
 def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
