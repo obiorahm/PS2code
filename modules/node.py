@@ -35,7 +35,7 @@ class Node:
         '''
         given a single observation, will return the output of the tree
         '''
-        # Your code here
+	# Your code here
         if (self.label != None):
             return self.label
         elif self.is_nominal:
@@ -44,16 +44,15 @@ class Node:
             return self.children[0].classify(instance)
         else:
             return self.children[1].classify(instance)
+        pass
 
     def print_tree(self, indent = 0):
         '''
         returns a string of the entire tree in human readable form
         '''
         # Your code here
-
-        print (pre_print(self ,indent = 0))
-
-
+        print (pre_print(self ,indent = 0))        
+        pass
 
 
     def print_dnf_tree(self):
@@ -62,63 +61,77 @@ class Node:
         '''
         print print_dnf(order_dnf(self,[]))
 
-
 def order_dnf(n,all =[]):
     if (n.label != None):
-        return all + [n.label] + ['$']
+        return ['('] + all + [n.label] + [')'] + ['$']
     elif (n.is_nominal == True):
-        sum =[]
+        lst_attr =[]
         for key in n.children:
-            x = order_dnf(n.children[key], all + [n.name])
-            sum = sum + x
-        return sum
+            attr = order_dnf(n.children[key], all + [str(n.name) + " = " + str(key)])
+            lst_attr = lst_attr + attr
+        return lst_attr
     elif(n.splitting_value != None):
-        sum =[]
+        lst_attr =[]
+        cmpr_sign = [" <  "," >= "]
         for item in n.children:
-            x = order_dnf(item, all + [n.name])
-            sum =sum + x
-        return sum
-
+            attr = order_dnf(item, all + [str(n.name) + cmpr_sign[n.children.index(item)] + str(n.splitting_value)])
+            lst_attr = lst_attr + attr
+        return lst_attr
+    else:
+        return ['('] + all + [')'] + ['$']
+    
 def print_dnf(lst):
     dnf = lst[0]
     len_lst = len(lst)
-    prev = False
+    prev = True
     for i in range(1,len_lst - 1):
-        if lst[i] != "$":
+        if (lst[i] == "(" or lst[i] == ")"):
+            dnf = dnf + lst[i]
+            prev = True
+        elif lst[i] == "$":
+            dnf = dnf + " or \n"
+            prev = True
+        else:
             if prev:
                 dnf = dnf + str(lst[i])
             else:
                 dnf = dnf + " and " +str(lst[i])
-            prev = False
-        else:
-            dnf = dnf + " or \n"
-            prev = True
+            prev = False            
     return dnf + "\n"
     
       
         
 
 def pre_print(n ,indent = 0):
-    tab = "\t"* indent + text_for_print(n) + "\n"
+    tab = "\t"* indent
     if (n.label != None):
-        return tab
+        return tab + "leaf: " + str(n.label) + "\n"
     elif (n.is_nominal == True):
+        x = ''
         for key in n.children:
-            tab += pre_print(n.children[key], indent + 1)
+            tab += x + (str(n.name)+ " = " + str(key) + "\n" + pre_print(n.children[key], indent + 1))
+            x = "\t"* indent
         return tab
     elif (n.splitting_value != None):
+        cmpr_sign = [" <  "," >= "]
+        x = ''
         for item in n.children:
-            tab += pre_print(item, indent + 1)
-        return tab 
+            tab += x + str(n.name) + cmpr_sign[n.children.index(item)] + str(n.splitting_value) + "\n" + pre_print(item, indent + 1)
+            x = "\t" * indent
+        return tab
+    else:
+        return ''
 
 
 def text_for_print(n):
     if (n.label != None):
         return "leaf: " + str(n.label)
     elif (n.is_nominal == True):
-        return n.name
+        return str(n.name)
     elif (n.splitting_value != None):
-        return n.name + " < " + str(n.splitting_value)
+        return str(n.name) + " < " + str(n.splitting_value)
+    else:
+        return ' '
 
 def try_print():
     n0 = Node()
@@ -282,5 +295,3 @@ def exceeding_more_print():
     return n.print_tree()
 
 
-    
-    

@@ -6,15 +6,15 @@ def make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_split
     n.children = dict()
     split_dict = split_on_nominal(data_set, attr_pos)
     for key in split_dict:
-        n.children[key] = ID3(split_dict[key], attribute_metadata, numerical_splits_count, depth)
+        is_empty(split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
     return n
 
 def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
     n.children = []
     n.splitting_value = attr_val
     split_dict = split_on_numerical(data_set, attr_pos, attr_val)
-    n.children.append(ID3(split_dict[0], attribute_metadata, numerical_splits_count, depth))
-    n.children.append(ID3(split_dict[1], attribute_metadata, numerical_splits_count, depth))
+    is_empty(n, split_dict[0], attribute_metadata, numerical_splits_count, depth,'flag')
+    is_empty(n, split_dict[1], attribute_metadata, numerical_splits_count, depth,'flag')
     return n
 
 def test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
@@ -32,8 +32,15 @@ def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical
     else:
         return test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)
 
-   
 
+def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_nominal):
+    if (not data_set):
+        n.label = 0
+    elif(flag_nominal == 'flag'):
+        n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
+    else:
+        n.children[flag_nominal] = ID3(split_dict[flag_nominal], attribute_metadata, numerical_splits_count, depth)       
+    
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     '''
     See Textbook for algorithm.
@@ -48,13 +55,15 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
 
     '''
     # Your code here
-    #pre_process(data_set)
     n = Node()
-    if (depth == 0):
-        n.label = mode(data_set)
+
+    if (n.label != None):
         return n
-    elif (not data_set):
-        n.label = 0
+    elif (depth == 0):
+        n.label = mode(data_set)
+        return n    
+    elif (not attribute_metadata):
+        n.label = mode(data_set)
         return n
     elif check_homogenous(data_set):
         n.label = check_homogenous(data_set)
@@ -88,8 +97,7 @@ def check_homogenous(data_set):
     if (changed):
         return
     else:
-        return item[0]
-
+        return item[0]    
     pass
 # ======== Test Cases =============================
 # data_set = [[0],[1],[1],[1],[1],[1]]
@@ -133,6 +141,7 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
         else:
             gain_ratios.append(gain_ratio_numeric(data_set, attribute_metadata.index(item), 1))
     return max_IGR(attribute_metadata, gain_ratios)
+    
     pass
 
 # # ======== Test Cases =============================
@@ -168,7 +177,6 @@ def mode(data_set):
         return 0
     else:
         return 1
-
     pass
 # ======== Test case =============================
 # data_set = [[0],[1],[1],[1],[1],[1]]
@@ -200,6 +208,7 @@ def entropy(data_set):
         split_val_lst = make_lst_attr(data_set, 0)
         return intrinsic_value(data_set, split_val_lst)
 
+
 # ======== Test case =============================
 # data_set = [[0],[1],[1],[1],[0],[1],[1],[1]]
 # entropy(data_set) == 0.811
@@ -207,7 +216,6 @@ def entropy(data_set):
 # entropy(data_set) == 1.0
 # data_set = [[0],[0],[0],[0],[0],[0],[0],[0]]
 # entropy(data_set) == 0
-
 
 def checkdivby0(numerator, denominator):
     if (denominator == 0):
@@ -236,7 +244,7 @@ def gain_ratio_nominal(data_set, attribute):
     # Your code here
     lst_values = make_lst_attr(data_set, attribute)
     return information_gain_ratio(data_set, lst_values)
-
+    pass
 # ======== Test case =============================
 # data_set, attr = [[1, 2], [1, 0], [1, 0], [0, 2], [0, 2], [0, 0], [1, 3], [0, 4], [0, 3], [1, 1]], 1
 # gain_ratio_nominal(data_set,attr) == 0.11470666361703151
@@ -245,12 +253,12 @@ def gain_ratio_nominal(data_set, attribute):
 # data_set, attr = [[0, 3], [0, 3], [0, 3], [0, 4], [0, 4], [0, 4], [0, 0], [0, 2], [1, 4], [0, 4]], 1
 # gain_ratio_nominal(data_set,attr) == 0.06409559743967516
 
-
 def IGR_numeric(data_set, attr, split_value):
     ls_tresh, gr_tresh = split_on_numerical(data_set, attr, split_value)
     return information_gain_ratio(data_set, [ls_tresh, gr_tresh])
 
-def gain_ratio_numeric(data_set, attribute, steps):
+
+def gain_ratio_numeric(data_set, attribute, steps = 1):
     '''
     ========================================================================================================
     Input:  Subset of data set, the index for a numeric attribute, and a step size for normalizing the data.
@@ -273,10 +281,10 @@ def gain_ratio_numeric(data_set, attribute, steps):
         lst_trhd.append(data_set[i][attribute])
     ratio_index = lst_ratios.index(max(lst_ratios))
     return lst_ratios[ratio_index], lst_trhd[ratio_index]
-
+    pass
 # ======== Test case =============================
-# data_set,attr,step = [[1,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]], 1, 2
-# gain_ratio_numeric(data_set,attr,step) == (0.21744375685031775, 0.64)
+# data_set,attr,step = [[1,0.05], [1,0.17], [1,0.64], [0,0.38], [1,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]], 1, 2
+# gain_ratio_numeric(data_set,attr,step) == (0.31918053332474033, 0.64)
 # data_set,attr,step = [[1, 0.35], [1, 0.24], [0, 0.67], [0, 0.36], [1, 0.94], [1, 0.4], [1, 0.15], [0, 0.1], [1, 0.61], [1, 0.17]], 1, 4
 # gain_ratio_numeric(data_set,attr,step) == (0.11689800358692547, 0.94)
 # data_set,attr,step = [[1, 0.1], [0, 0.29], [1, 0.03], [0, 0.47], [1, 0.25], [1, 0.12], [1, 0.67], [1, 0.73], [1, 0.85], [1, 0.25]], 1, 1
@@ -300,7 +308,7 @@ def split_on_nominal(data_set, attribute):
         else:
             attr_dict[item[attribute]] = [item]
     return attr_dict
-
+    pass
 # ======== Test case =============================
 # data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
 # split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
@@ -327,7 +335,6 @@ def split_on_numerical(data_set, attribute, splitting_value):
         else:
             ls_trhd_lst.append(item)
     return ls_trhd_lst, gr_trhd_lst
-    
     pass
 # ======== Test case =============================
 # d_set,a,sval = [[1, 0.25], [1, 0.89], [0, 0.93], [0, 0.48], [1, 0.19], [1, 0.49], [0, 0.6], [0, 0.6], [1, 0.34], [1, 0.19]],1,0.48
@@ -354,5 +361,3 @@ def information_gain_ratio(data_set, lst_vals):
     IG = information_gain(data_set, lst_vals)
     IV = intrinsic_value(data_set, lst_vals)
     return checkdivby0(IG,IV)
-                      
-    

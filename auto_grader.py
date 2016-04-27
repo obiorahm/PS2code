@@ -140,10 +140,10 @@ def check_gain_ratio_nom():
 
 def check_gain_ratio_num():
 	step = [2,4,1]
-	data_set = [[[1,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]]
+	data_set = [[[0,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]]
 	,[[1, 0.35], [1, 0.24], [0, 0.67], [0, 0.36], [1, 0.94], [1, 0.4], [1, 0.15], [0, 0.1], [1, 0.61], [1, 0.17]]
 	,[[1, 0.1], [0, 0.29], [1, 0.03], [0, 0.47], [1, 0.25], [1, 0.12], [1, 0.67], [1, 0.73], [1, 0.85], [1, 0.25]]]
-	result = [(0.21744375685031775, 0.64),(0.11689800358692547, 0.94),(0.23645279766002802, 0.29)]
+	result = [(0.31918053332474033, 0.64),(0.11689800358692547, 0.94),(0.23645279766002802, 0.29)]
 	total = 0
 	for i in xrange(3):
 		GRNum = gain_ratio_numeric(data_set[i],1,step[i])
@@ -212,6 +212,8 @@ def check_ID3():
    data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
    numerical_splits_count = [5, 5]
    n = ID3(data_set, attribute_metadata, numerical_splits_count, 0)
+   n.print_tree()
+   n.print_dnf_tree()
    fails = 0;
    if n and n.label == 1:
       print "Passed 1"
@@ -222,6 +224,8 @@ def check_ID3():
    data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
    numerical_splits_count = [1, 1]
    n = ID3(data_set, attribute_metadata, numerical_splits_count, 5)
+   n.print_tree()
+   n.print_dnf_tree()
    if n and [n.classify(x) == x[0] for x in data_set] == [True, False, True, True, False, True, True, True, True, True, True]:
       print "Passed 2"
    else:
@@ -232,6 +236,9 @@ def check_ID3():
    data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
    numerical_splits_count = [5, 5]
    n = ID3(data_set, attribute_metadata, numerical_splits_count, 5)
+   n.print_dnf_tree()
+   n.print_tree()
+   
    if n and [n.classify(x) == x[0] for x in data_set] == [True, False, True, True, True, True, True, True, True, True, True]:
       print "Passed 3"
    else:
