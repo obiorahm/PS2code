@@ -35,7 +35,7 @@ def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical
 
 def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_nominal):
     if (not data_set):
-        n.label = 0
+        n.label = mode(data_set)
     elif(flag_nominal == 'flag'):
         n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
     else:
