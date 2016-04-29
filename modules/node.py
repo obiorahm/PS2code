@@ -38,6 +38,8 @@ class Node:
 	# Your code here
         if (self.label != None):
             return self.label
+        elif (instance[self.decision_attribute] == '?'):
+            return classify_unknown(self, instance)
         elif self.is_nominal:
             return self.children[instance[self.decision_attribute]].classify(instance)
         elif (instance[self.decision_attribute] < self.splitting_value):
@@ -61,6 +63,12 @@ class Node:
         '''
         print print_dnf(order_dnf(self,[]))
 
+def classify_unknown(n, instance):
+    if n.is_nominal:
+        return n.children['unknown'].classify(instance)
+    else:
+        return n.children[2].classify(instance)    
+
 def order_dnf(n,all =[]):
     if (n.label != None):
         return ['('] + all + [n.label] + [')'] + ['$']
@@ -72,7 +80,7 @@ def order_dnf(n,all =[]):
         return lst_attr
     elif(n.splitting_value != None):
         lst_attr =[]
-        cmpr_sign = [" <  "," >= "]
+        cmpr_sign = [" <  "," >= ", ' ? ']
         for item in n.children:
             attr = order_dnf(item, all + [str(n.name) + cmpr_sign[n.children.index(item)] + str(n.splitting_value)])
             lst_attr = lst_attr + attr
@@ -113,7 +121,7 @@ def pre_print(n ,indent = 0):
             x = "\t"* indent
         return tab
     elif (n.splitting_value != None):
-        cmpr_sign = [" <  "," >= "]
+        cmpr_sign = [" <  "," >= ", " ? "]
         x = ''
         for item in n.children:
             tab += x + str(n.name) + cmpr_sign[n.children.index(item)] + str(n.splitting_value) + "\n" + pre_print(item, indent + 1)
@@ -123,15 +131,6 @@ def pre_print(n ,indent = 0):
         return ''
 
 
-def text_for_print(n):
-    if (n.label != None):
-        return "leaf: " + str(n.label)
-    elif (n.is_nominal == True):
-        return str(n.name)
-    elif (n.splitting_value != None):
-        return str(n.name) + " < " + str(n.splitting_value)
-    else:
-        return ' '
 
 def try_print():
     n0 = Node()

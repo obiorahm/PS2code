@@ -6,7 +6,8 @@ def make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_split
     n.children = dict()
     split_dict = split_on_nominal(data_set, attr_pos)
     for key in split_dict:
-        is_empty(split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
+        is_empty(n,split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
+    is_empty(n,modedict(split_dict), attribute_metadata, numerical_splits_count, depth, 'unknown')
     return n
 
 def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
@@ -15,7 +16,9 @@ def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numer
     split_dict = split_on_numerical(data_set, attr_pos, attr_val)
     is_empty(n, split_dict[0], attribute_metadata, numerical_splits_count, depth,'flag')
     is_empty(n, split_dict[1], attribute_metadata, numerical_splits_count, depth,'flag')
+    is_empty(n, split_dict[modelst(split_dict[0],split_dict[1])], attribute_metadata, numerical_splits_count, depth, 'flag')
     return n
+
 
 def test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
     if numerical_splits_count[attr_pos] == 0:
@@ -39,8 +42,9 @@ def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_
     elif(flag_nominal == 'flag'):
         n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
     else:
-        n.children[flag_nominal] = ID3(split_dict[flag_nominal], attribute_metadata, numerical_splits_count, depth)       
-    
+        n.children[flag_nominal] = ID3(data_set, attribute_metadata, numerical_splits_count, depth)
+
+
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     '''
     See Textbook for algorithm.
@@ -183,6 +187,22 @@ def mode(data_set):
 # mode(data_set) == 1
 # data_set = [[0],[1],[0],[0]]
 # mode(data_set) == 0
+
+def modelst(lst1, lst2):
+    if len(lst1)>= len(lst2):
+        return 0
+    return 1
+
+def modedict(dict1):
+    max_dict = dict1.keys()[0]
+
+    for key in dict1:
+        x = len(dict1[key])
+        y = len(dict1[max_dict])
+        if x >= y:
+            max_dict = key
+    return max_dict
+
 
 def plogp(p):
     if (p == 0):
