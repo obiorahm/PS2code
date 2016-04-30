@@ -53,7 +53,7 @@ class Node:
         returns a string of the entire tree in human readable form
         '''
         # Your code here
-        print (pre_print(self ,indent = 0))        
+        return pre_print(self ,indent = 0)        
         pass
 
 
@@ -61,7 +61,7 @@ class Node:
         '''
         returns the disjunct normalized form of the tree.
         '''
-        print print_dnf(order_dnf(self,[]))
+        return print_dnf(order_dnf(self,[]))
 
 def classify_unknown(n, instance):
     if n.is_nominal:

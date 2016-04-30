@@ -1,0 +1,146 @@
+oppnuminjured <  4.0
+	rundifferential <  120.0
+		opprundifferential <  106.0
+			numinjured <  2.0
+				oppnuminjured <  2.0
+					numinjured <  1.0
+						numinjured <  -2.0
+							rundifferential <  81.0
+								winpercent <  0.674776871
+									winpercent <  0.256863289
+										dayssincegame <  4.0
+											leaf: 1
+										dayssincegame >= 4.0
+											leaf: 0
+										dayssincegame ? 4.0
+											leaf: 1
+									winpercent >= 0.256863289
+										leaf: 1
+									winpercent ? 0.256863289
+										leaf: 1
+								winpercent >= 0.674776871
+									leaf: 0
+								winpercent ? 0.674776871
+									winpercent <  0.256863289
+										dayssincegame <  4.0
+											leaf: 1
+										dayssincegame >= 4.0
+											leaf: 0
+										dayssincegame ? 4.0
+											leaf: 1
+									winpercent >= 0.256863289
+										leaf: 1
+									winpercent ? 0.256863289
+										leaf: 1
+							rundifferential >= 81.0
+								leaf: 0
+							rundifferential ? 81.0
+								winpercent <  0.674776871
+									winpercent <  0.256863289
+										dayssincegame <  4.0
+											leaf: 1
+										dayssincegame >= 4.0
+											leaf: 0
+										dayssincegame ? 4.0
+											leaf: 1
+									winpercent >= 0.256863289
+										leaf: 1
+									winpercent ? 0.256863289
+										leaf: 1
+								winpercent >= 0.674776871
+									leaf: 0
+								winpercent ? 0.674776871
+									leaf: 1
+						numinjured >= -2.0
+							leaf: 0
+						numinjured ? -2.0
+							leaf: 0
+					numinjured >= 1.0
+						oppnuminjured <  -1.0
+							leaf: 0
+						oppnuminjured >= -1.0
+							leaf: 1
+						oppnuminjured ? -1.0
+							leaf: 1
+					numinjured ? 1.0
+						oppnuminjured <  -1.0
+							leaf: 0
+						oppnuminjured >= -1.0
+							leaf: 1
+						oppnuminjured ? -1.0
+							leaf: 1
+				oppnuminjured >= 2.0
+					leaf: 0
+				oppnuminjured ? 2.0
+					numinjured <  1.0
+						numinjured <  -2.0
+							leaf: 1
+						numinjured >= -2.0
+							leaf: 0
+						numinjured ? -2.0
+							leaf: 0
+					numinjured >= 1.0
+						oppnuminjured <  -1.0
+							leaf: 0
+						oppnuminjured >= -1.0
+							leaf: 1
+						oppnuminjured ? -1.0
+							leaf: 1
+					numinjured ? 1.0
+						leaf: 1
+			numinjured >= 2.0
+				oppwinningpercent <  0.22094704
+					oppwinningpercent <  0.009730027
+						leaf: 1
+					oppwinningpercent >= 0.009730027
+						oppdayssincegame <  5.0
+							oppwinningpercent <  0.170112074
+								opprundifferential <  58.0
+									leaf: 0
+								opprundifferential >= 58.0
+									leaf: 0
+								opprundifferential ? 58.0
+									leaf: 0
+							oppwinningpercent >= 0.170112074
+								leaf: 0
+							oppwinningpercent ? 0.170112074
+								leaf: 0
+						oppdayssincegame >= 5.0
+							leaf: 1
+						oppdayssincegame ? 5.0
+							oppwinningpercent <  0.170112074
+								leaf: 0
+							oppwinningpercent >= 0.170112074
+								leaf: 0
+							oppwinningpercent ? 0.170112074
+								leaf: 0
+					oppwinningpercent ? 0.009730027
+						oppdayssincegame <  5.0
+							oppwinningpercent <  0.170112074
+								leaf: 0
+							oppwinningpercent >= 0.170112074
+								leaf: 0
+							oppwinningpercent ? 0.170112074
+								leaf: 0
+						oppdayssincegame >= 5.0
+							leaf: 1
+						oppdayssincegame ? 5.0
+							leaf: 0
+				oppwinningpercent >= 0.22094704
+					leaf: 1
+				oppwinningpercent ? 0.22094704
+					leaf: 1
+			numinjured ? 2.0
+				leaf: 0
+		opprundifferential >= 106.0
+			leaf: 0
+		opprundifferential ? 106.0
+			leaf: 1
+	rundifferential >= 120.0
+		leaf: 0
+	rundifferential ? 120.0
+		leaf: 1
+oppnuminjured >= 4.0
+	leaf: 0
+oppnuminjured ? 4.0
+	leaf: 1

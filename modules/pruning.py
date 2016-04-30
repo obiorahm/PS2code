@@ -11,18 +11,18 @@ def reduced_error_pruning(root,training_set,validation_set):
     take the a node, training set, and validation set and returns the improved node.
     You can implement this as you choose, but the goal is to remove some nodes such that doing so improves validation accuracy.
     '''
-    # Your code here
-    accuracy = validation_accuracy(root, validation_set)
-    new_root = root
-    if (root.label == None and (not root.children)):
-        return root
-    elif (root.label != None):
-        del new_root
+    #aaccumulate the path through the tree
+
+    
+        
+    
         
     pass
-# 
+    
 
-def validation_accuracy(tree,validation_set):
+
+    
+def validation_accuracy(tree, validation_set):
     '''
     takes a tree and a validation set and returns the accuracy of the set on the given tree
     '''
@@ -34,8 +34,8 @@ def validation_accuracy(tree,validation_set):
         if classification == example[0]:
             count_correct +=1
     return float(count_correct)/float(total_number)
-        
-    pass
+
+
 
 def test_validation_accuracy():
     attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
