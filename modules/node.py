@@ -70,8 +70,8 @@ def classify_unknown(n, instance):
         return n.children[2].classify(instance)    
 
 def order_dnf(n,all =[]):
-    if (n.label != None):
-        return ['('] + all + [n.label] + [')'] + ['$']
+    if (n.label == 1):
+        return ['('] + all + [')'] + ['$']
     elif (n.is_nominal == True):
         lst_attr =[]
         for key in n.children:
@@ -86,7 +86,7 @@ def order_dnf(n,all =[]):
             lst_attr = lst_attr + attr
         return lst_attr
     else:
-        return ['('] + all + [')'] + ['$']
+        return []
     
 def print_dnf(lst):
     dnf = lst[0]

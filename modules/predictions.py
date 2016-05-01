@@ -16,7 +16,7 @@ def create_predictions(tree, predict):
     Given a tree and a url to a data_set. Create a csv with a prediction for each result
     using the classify method in node class.
     '''
-    pred_file = open('./output/predictions.txt','w+')
+    pred_file = open('./output/predictions.csv','w+')
     pred_val = ''
     ppredict, attribute_meta_data = parse(predict, True)
 

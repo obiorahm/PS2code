@@ -2,6 +2,8 @@ import math
 from node import Node
 import sys
 
+count_mma = 0
+
 def make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_splits_count, depth):
     n.children = dict()
     split_dict = split_on_nominal(data_set, attr_pos)
@@ -23,6 +25,9 @@ def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numer
 def test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
     if numerical_splits_count[attr_pos] == 0:
         n.label = mode(data_set)
+        global count_mma
+        count_mma = count_mma - 1
+        print count_mma
         return n
     else:
         numerical_splits_count[attr_pos] -=1
@@ -37,8 +42,12 @@ def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical
 
 
 def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_nominal):
+    global count_mma
     if (not data_set):
         n.label = mode(data_set)
+        global count_mma
+        count_mma = count_mma - 1
+        print count_mma
     elif(flag_nominal == 'flag'):
         n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
     else:
@@ -73,6 +82,10 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
         n.label = check_homogenous(data_set)
         return n
     else:
+        global count_mma
+        count_mma = count_mma + 1
+        print count_mma
+
         attr_pos, attr_val = pick_best_attribute(data_set, attribute_metadata, numerical_splits_count)
         n.decision_attribute = attr_pos
         n.name = attribute_metadata[attr_pos]['name']
