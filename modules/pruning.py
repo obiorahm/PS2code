@@ -11,11 +11,14 @@ def reduced_error_pruning(root,training_set,validation_set):
     take the a node, training set, and validation set and returns the improved node.
     You can implement this as you choose, but the goal is to remove some nodes such that doing so improves validation accuracy.
     '''
-    tree = copy_node(root)
+    #tree = copy_node(root)
     
-    accuracy, new_tree = better_prunned_tree(tree, validation_set)
-    print accuracy
-    return new_tree
+    #accuracy, new_tree = better_prunned_tree(tree, validation_set)
+    #print accuracy
+    #print "the final tree length of nodes ", len(breadth_first_search(new_tree,[new_tree]))
+
+    #return new_tree
+    pass
 
 def better_prunned_tree(tree, validation_set):
     org_tree = copy_node(tree)
@@ -25,37 +28,37 @@ def better_prunned_tree(tree, validation_set):
     lst_nodes.reverse()
     print len(lst_nodes)
     for node in lst_nodes:
-        x = copy_node(node)
-        prune_node(node)
-        print node.name
-        accuracy = validation_accuracy(new_tree, validation_set)
-        print accuracy
-        print new_tree
-        
-        #print new_tree.print_tree()
-        if accuracy >= init_accuracy:
-            print "found it"
-            return accuracy, new_tree
-        else:
-            node = copy_node(x)
-            print node.name
-            
-            #new_tree = tree
-    #print new_tree.print_tree()
+        y = node
+        for item in [0,1, 2]:
+            x = copy_node(y)
+            y = prune_node(y, item)
+            print "the number of nodes is", len(breadth_first_search(new_tree,[new_tree]))
+            accuracy = validation_accuracy(new_tree, validation_set)
+            print accuracy
+            if accuracy > init_accuracy:
+                return accuracy, new_tree
+            elif (accuracy == init_accuracy):
+                org_tree = copy_node(new_tree)
+            #else:
+                #node = copy_node(x)
+        print "twin accuracy"
     print "had to stop"
     return init_accuracy, org_tree
 
-def prune_node(node):
-    node.label = 1
-    node.decision_attrinute = None
+        
+def prune_node(node, item):
+    node.label = item
+
     node.is_nominal = None
-    node.value = None
+
     node.splitting_value = None
     node.children = {}
-    node.name = None
+
+
+    return node 
     
 
-def breadth_first_search(root, queue):
+def breadth_first_search(root, queue,):
     if root.label != None:
         return queue
     else:
@@ -94,7 +97,7 @@ def copy_node(node):
     if node.is_nominal:
         new_node.children = {}
         for key in node.children:
-            new_node.children[key] = copy_node(node[key])
+            new_node.children[key] = copy_node(node.children[key])
     else:
         new_node.children = []
         for i in range(len(node.children)):

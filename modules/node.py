@@ -38,14 +38,17 @@ class Node:
 	# Your code here
         if (self.label != None):
             return self.label
-        elif (instance[self.decision_attribute] == '?'):
-            return classify_unknown(self, instance)
         elif self.is_nominal:
-            return self.children[instance[self.decision_attribute]].classify(instance)
+            if (instance[self.decision_attribute] in self.children):
+                return self.children[instance[self.decision_attribute]].classify(instance)
+            else:
+                return self.children[None].classify(instance)
         elif (instance[self.decision_attribute] < self.splitting_value):
             return self.children[0].classify(instance)
-        else:
+        elif(instance[self.decision_attribute] >= self.splitting_value):
             return self.children[1].classify(instance)
+        else:
+            return self.children[2].classify(instance)
         pass
 
     def print_tree(self, indent = 0):
@@ -62,12 +65,7 @@ class Node:
         returns the disjunct normalized form of the tree.
         '''
         return print_dnf(order_dnf(self,[]))
-
-def classify_unknown(n, instance):
-    if n.is_nominal:
-        return n.children['unknown'].classify(instance)
-    else:
-        return n.children[2].classify(instance)    
+   
 
 def order_dnf(n,all =[]):
     if (n.label == 1):

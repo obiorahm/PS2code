@@ -3,55 +3,51 @@ from node import Node
 import sys
 
 count_mma = 0
+mode_data_set = 0
 
 def make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_splits_count, depth):
     n.children = dict()
     split_dict = split_on_nominal(data_set, attr_pos)
+    mode_key = modedict(split_dict)
+    is_empty(n,split_dict[mode_key], attribute_metadata, numerical_splits_count, depth, None)    
     for key in split_dict:
-        is_empty(n,split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
-    is_empty(n,modedict(split_dict), attribute_metadata, numerical_splits_count, depth, 'unknown')
+        if key != None:
+            is_empty(n,split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
     return n
 
 def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
     n.children = []
     n.splitting_value = attr_val
     split_dict = split_on_numerical(data_set, attr_pos, attr_val)
+    mode_child = split_dict[modelst(split_dict[0],split_dict[1])]
     is_empty(n, split_dict[0], attribute_metadata, numerical_splits_count, depth,'flag')
     is_empty(n, split_dict[1], attribute_metadata, numerical_splits_count, depth,'flag')
-    is_empty(n, split_dict[modelst(split_dict[0],split_dict[1])], attribute_metadata, numerical_splits_count, depth, 'flag')
-    return n
-
-
-def test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
-    if numerical_splits_count[attr_pos] == 0:
-        n.label = mode(data_set)
-        global count_mma
-        count_mma = count_mma - 1
-        print count_mma
-        return n
-    else:
-        numerical_splits_count[attr_pos] -=1
-        return make_child_numeric(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)    
+    is_empty(n, mode_child, attribute_metadata, numerical_splits_count, depth, 'flag')
+    return n   
 
 def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
     n.is_nominal = (attr_val == False)
     if n.is_nominal:
         return make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_splits_count, depth)
     else:
-        return test_numeric_splits(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)
+        return make_child_numeric(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)
 
 
 def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_nominal):
     global count_mma
     if (not data_set):
-        n.label = mode(data_set)
+        global mode_child
+        n.label = mode_data_set
+        return n
         global count_mma
         count_mma = count_mma - 1
         print count_mma
     elif(flag_nominal == 'flag'):
         n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
+        return n
     else:
         n.children[flag_nominal] = ID3(data_set, attribute_metadata, numerical_splits_count, depth)
+        return n
 
 
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
@@ -87,6 +83,13 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
         print count_mma
 
         attr_pos, attr_val = pick_best_attribute(data_set, attribute_metadata, numerical_splits_count)
+        if attr_pos == False:
+            n.label = mode(data_set)
+            global count_mma
+            count_mma = count_mma - 1
+            print count_mma
+            return n
+
         n.decision_attribute = attr_pos
         n.name = attribute_metadata[attr_pos]['name']
         depth -=1
@@ -103,19 +106,13 @@ def check_homogenous(data_set):
     ========================================================================================================
     '''
     # Your code here
-    curr_item = data_set[0][0]
-    changed = False;
-    for item in data_set:
-        if (curr_item != item[0]):
-            changed = True
-            break
-        else:
-            curr_item = item[0]
-    if (changed):
-        return
-    else:
-        return item[0]    
-    pass
+    curr_example = data_set[0][0]
+    for example in data_set:
+        if (curr_example != example[0]):
+            return
+    return curr_example   
+
+
 # ======== Test Cases =============================
 # data_set = [[0],[1],[1],[1],[1],[1]]
 # check_homogenous(data_set) ==  None
@@ -124,15 +121,17 @@ def check_homogenous(data_set):
 # data_set = [[1],[1],[1],[1],[1],[1]]
 # check_homogenous(data_set) ==  1
 
-def max_IGR(attribute_metadata, gain_ratios):
+def max_IGR(gain_ratios, treshold_and_false, numerical_splits_count):
     max_ratio = max(gain_ratios[1:len(gain_ratios)])
     max_ratio_id = gain_ratios.index(max_ratio)
     if (max_ratio == 0):
-        return False, False
-    elif (attribute_metadata[max_ratio_id]['is_nominal']):
-        return max_ratio_id, False
+        return False, False       
     else:
-        return max_ratio_id, max_ratio[1]
+        if treshold_and_false[max_ratio_id]:
+            if numerical_splits_count[max_ratio_id] == 0:
+                return False, False
+            numerical_splits_count[max_ratio_id] -= 1        
+        return max_ratio_id, treshold_and_false[max_ratio_id]
 
 
 def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
@@ -148,16 +147,19 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
     Output: best attribute, split value if numeric
     ========================================================================================================
     '''
-    # Your code here
-    if numerical_splits_count == 0:
-        return
+
     gain_ratios = []
+    treshold = []
     for item in attribute_metadata:
         if (item['is_nominal']):
             gain_ratios.append(gain_ratio_nominal(data_set, attribute_metadata.index(item)))
+            treshold.append(False)
         else:
-            gain_ratios.append(gain_ratio_numeric(data_set, attribute_metadata.index(item), 1))
-    return max_IGR(attribute_metadata, gain_ratios)
+            ratio_and_treshld = gain_ratio_numeric(data_set, attribute_metadata.index(item), 1)
+            gain_ratios.append(ratio_and_treshld[0])
+            treshold.append(ratio_and_treshld[1])
+             
+    return max_IGR(gain_ratios, treshold, numerical_splits_count)
     
     pass
 
@@ -190,11 +192,12 @@ def mode(data_set):
             sum_0 += 1
         elif (item[0] == 1):
             sum_1 += 1
-    if sum_0>= sum_1:
+    if sum_0> sum_1:
         return 0
     else:
         return 1
-    pass
+
+    
 # ======== Test case =============================
 # data_set = [[0],[1],[1],[1],[1],[1]]
 # mode(data_set) == 1
@@ -223,6 +226,12 @@ def plogp(p):
     else:
         return p * math.log(p,2)
 
+def make_lst_attr(data_set, attribute):
+    attr_dict = split_on_nominal(data_set, attribute)
+    attr_lst = []
+    for key in attr_dict:
+        attr_lst.append(attr_dict[key])
+    return attr_lst
 
 def entropy(data_set):
     '''
@@ -256,12 +265,7 @@ def checkdivby0(numerator, denominator):
     else:
         return (numerator/denominator)
 
-def make_lst_attr(data_set, attribute):
-    attr_dict = split_on_nominal(data_set, attribute)
-    attr_lst = []
-    for key in attr_dict:
-        attr_lst.append(attr_dict[key])
-    return attr_lst
+
 
 
 def gain_ratio_nominal(data_set, attribute):
@@ -277,7 +281,7 @@ def gain_ratio_nominal(data_set, attribute):
     # Your code here
     lst_values = make_lst_attr(data_set, attribute)
     return information_gain_ratio(data_set, lst_values)
-    pass
+
 # ======== Test case =============================
 # data_set, attr = [[1, 2], [1, 0], [1, 0], [0, 2], [0, 2], [0, 0], [1, 3], [0, 4], [0, 3], [1, 1]], 1
 # gain_ratio_nominal(data_set,attr) == 0.11470666361703151
@@ -341,7 +345,7 @@ def split_on_nominal(data_set, attribute):
         else:
             attr_dict[item[attribute]] = [item]
     return attr_dict
-    pass
+
 # ======== Test case =============================
 # data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
 # split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
@@ -394,3 +398,17 @@ def information_gain_ratio(data_set, lst_vals):
     IG = information_gain(data_set, lst_vals)
     IV = intrinsic_value(data_set, lst_vals)
     return checkdivby0(IG,IV)
+
+
+def test_pick_stuff():
+    numerical_splits_count = [[20,20],[20,20],[20,20,20,20],[20,20,20,20]]
+    a_meta = [[{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
+    ,[{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}],
+    [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}, {'name': "attitude", 'is_nominal': False}],
+    [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}, {'name': "attitude", 'is_nominal': False}]]
+    d_set = [[[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [0, 0.51], [1, 0.4]],
+    [[0, 0], [1, 0], [0, 2], [0, 2], [0, 3], [1, 1], [0, 4], [0, 2], [1, 2], [1, 5]],
+    [[0, 0, 0.1], [1, 0, 0.2], [0, 2, 0.2], [0, 2, 0.2], [0, 3, 0.1], [1, 1, 0.1], [0, 4, 0.1], [0, 2, 0.1], [1, 2, 0.1], [1, 5, 0.1]],
+    [[0, 0, 0.1], [1, 0, 0.2], [0, 2, 0.05], [0, 2, 0.14], [0, 3, 0.3], [1, 1, 0.3], [0, 4, 0.1], [0, 2, 0.1], [1, 2, 0.29], [1, 5, 0.5]] ]
+    result = [(1, 0.51),(1, False),(1,False),(2, 0.2)]
+    pick_best_attribute(d_set[2], a_meta[2], numerical_splits_count[2]) == result[2]
