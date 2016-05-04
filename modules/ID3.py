@@ -142,7 +142,7 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
             gain_ratios.append(gain_ratio_nominal(data_set, attribute_metadata.index(item)))
             treshold.append(False)
         else:
-            ratio_and_treshld = gain_ratio_numeric(data_set, attribute_metadata.index(item), 50)
+            ratio_and_treshld = gain_ratio_numeric(data_set, attribute_metadata.index(item), 1)
             gain_ratios.append(ratio_and_treshld[0])
             treshold.append(ratio_and_treshld[1])
              
