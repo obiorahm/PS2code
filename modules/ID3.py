@@ -9,10 +9,10 @@ def make_child_nominal(n,data_set, attr_pos, attribute_metadata, numerical_split
     n.children = dict()
     split_dict = split_on_nominal(data_set, attr_pos)
     mode_key = modedict(split_dict)
-    is_empty(n,split_dict[mode_key], attribute_metadata, numerical_splits_count, depth, None)    
+    n.children[None] = ID3(split_dict[mode_key], attribute_metadata, numerical_splits_count, depth)   
     for key in split_dict:
         if key != None:
-            is_empty(n,split_dict[key], attribute_metadata, numerical_splits_count, depth, key)
+            n.children[key] = ID3(split_dict[key], attribute_metadata, numerical_splits_count, depth)
     return n
 
 def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
@@ -20,9 +20,9 @@ def make_child_numeric(n,data_set, attr_pos, attr_val, attribute_metadata, numer
     n.splitting_value = attr_val
     split_dict = split_on_numerical(data_set, attr_pos, attr_val)
     mode_child = split_dict[modelst(split_dict[0],split_dict[1])]
-    is_empty(n, split_dict[0], attribute_metadata, numerical_splits_count, depth,'flag')
-    is_empty(n, split_dict[1], attribute_metadata, numerical_splits_count, depth,'flag')
-    is_empty(n, mode_child, attribute_metadata, numerical_splits_count, depth, 'flag')
+    n.children.append(ID3(split_dict[0], attribute_metadata, numerical_splits_count, depth))
+    n.children.append(ID3(split_dict[1], attribute_metadata, numerical_splits_count, depth))
+    n.children.append(ID3(mode_child, attribute_metadata, numerical_splits_count, depth))
     return n   
 
 def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth):
@@ -32,22 +32,6 @@ def make_children(n, data_set, attr_pos, attr_val, attribute_metadata, numerical
     else:
         return make_child_numeric(n, data_set, attr_pos, attr_val, attribute_metadata, numerical_splits_count, depth)
 
-
-def is_empty(n,data_set, attribute_metadata, numerical_splits_count, depth,flag_nominal):
-    global count_mma
-    if (not data_set):
-        global mode_child
-        n.label = mode_data_set
-        return n
-        global count_mma
-        count_mma = count_mma - 1
-        print count_mma
-    elif(flag_nominal == 'flag'):
-        n.children.append(ID3(data_set, attribute_metadata, numerical_splits_count, depth))
-        return n
-    else:
-        n.children[flag_nominal] = ID3(data_set, attribute_metadata, numerical_splits_count, depth)
-        return n
 
 
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
@@ -68,6 +52,9 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
 
     if (n.label != None):
         return n
+    elif (not data_set):
+        n.label = mode(data_set)
+        return n
     elif (depth == 0):
         n.label = mode(data_set)
         return n    
@@ -76,7 +63,7 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
         return n
     elif check_homogenous(data_set):
         n.label = check_homogenous(data_set)
-        return n
+        return n     
     else:
         global count_mma
         count_mma = count_mma + 1
@@ -155,13 +142,12 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
             gain_ratios.append(gain_ratio_nominal(data_set, attribute_metadata.index(item)))
             treshold.append(False)
         else:
-            ratio_and_treshld = gain_ratio_numeric(data_set, attribute_metadata.index(item), 1)
+            ratio_and_treshld = gain_ratio_numeric(data_set, attribute_metadata.index(item), 50)
             gain_ratios.append(ratio_and_treshld[0])
             treshold.append(ratio_and_treshld[1])
              
     return max_IGR(gain_ratios, treshold, numerical_splits_count)
     
-    pass
 
 # # ======== Test Cases =============================
 # numerical_splits_count = [20,20]
@@ -192,7 +178,7 @@ def mode(data_set):
             sum_0 += 1
         elif (item[0] == 1):
             sum_1 += 1
-    if sum_0> sum_1:
+    if sum_0>= sum_1:
         return 0
     else:
         return 1
